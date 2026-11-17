@@ -203,3 +203,21 @@ p.bad { color: var(--coral); font-size: 13.5px; }
 .dom-bar { height: 8px; border-radius: 6px; background: var(--surface-2); overflow: hidden; } .dom-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--coral), var(--amber), var(--teal)); background-size: 300px 100%; }
 @media (max-width: 520px) { .dom-row { grid-template-columns: 110px 1fr 40px; } .dom-row small { display: none; } }
 input[type=range] { accent-color: var(--amber); }
+
+/* ---------- visualizer ---------- */
+.viz-lede { max-width: 70ch; }
+.viz-stage { display: grid; place-items: center; margin: 14px 0 6px; }
+.viz-canvas { width: min(100%, 680px); aspect-ratio: 1; border-radius: 50%; background: #04060e; box-shadow: 0 0 0 1px var(--line), 0 0 60px rgba(110, 90, 255, 0.18); }
+.viz-bars { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 10px 0 16px; }
+.viz-chip { padding: 4px 12px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); font-size: 13px; color: var(--muted); transition: all .15s; }
+.viz-chip.on { color: #fff; border-color: var(--amber); box-shadow: 0 0 14px rgba(242, 184, 75, 0.45); transform: translateY(-1px); }
+.viz-controls { display: grid; gap: 12px; }
+.viz-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.viz-row.split { justify-content: space-between; }
+.viz-row .lab { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); min-width: 86px; }
+.viz-row .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.viz-row .chip { background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 5px 13px; font-size: 13px; color: var(--muted); }
+.viz-row .chip.on { color: var(--text); border-color: var(--amber); }
+.seg.wrap { flex-wrap: wrap; border-radius: 16px; }
+.viz-bpm { display: inline-flex; align-items: center; gap: 10px; }
+.viz-play { min-width: 150px; }

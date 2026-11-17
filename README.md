@@ -5,6 +5,7 @@
 - **Learn**: pick a note on the staff and see every place it lives on the neck, with scales, a circle of fifths and a 3D fretboard.
 - **Theory**: rhythm and note values, key signatures, clefs and ledger lines, enharmonics, intervals, chords and harmony, modes, tab symbols, moveable shapes (barre, CAGED, pentatonic boxes) and tunings/capo, all interactive and audible.
 - **Practice games**: tab → staff, staff → tab, fretboard finder, clef/key-signature/enharmonic/interval quizzes, interval and chord ear training, rhythm tapping, plus a progress card with weak-spot practice.
+- **Visualizer**: a "chord laser zoetrope" - progressions play through a spinning glowing disc where each note is a coloured laser arc (ring = pitch, length = duration).
 - **Tools**: metronome (tap tempo, subdivisions, speed trainer) and a microphone tuner.
 - **Instruments**: how piano, flute, alto sax, tenor sax and guitar are written vs. how they sound, and how to transpose.
 

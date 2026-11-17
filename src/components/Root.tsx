@@ -4,13 +4,15 @@ import Games from './Games';
 import Instruments from './Instruments';
 import Theory from './theory/Theory';
 import Tools from './Tools';
+import Visualizer from './Visualizer';
 
-type Tab = 'learn' | 'theory' | 'play' | 'inst' | 'tools';
+type Tab = 'learn' | 'theory' | 'play' | 'inst' | 'tools' | 'viz';
 const TABS: { id: Tab; label: string }[] = [
   { id: 'learn', label: '📖 Learn' },
   { id: 'theory', label: '🧠 Theory' },
   { id: 'play', label: '🎯 Practice games' },
   { id: 'inst', label: '🎷 Instruments' },
+  { id: 'viz', label: '🌀 Visualizer' },
   { id: 'tools', label: '🛠 Tools' },
 ];
 
@@ -34,6 +36,7 @@ export default function Root() {
       <div hidden={tab !== 'theory'}><Theory /></div>
       <div hidden={tab !== 'play'}><Games /></div>
       <div hidden={tab !== 'inst'}><Instruments /></div>
+      <div hidden={tab !== 'viz'}><Visualizer /></div>
       <div hidden={tab !== 'tools'}><Tools /></div>
     </>
   );
