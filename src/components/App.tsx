@@ -9,6 +9,8 @@ import Staff, { type AccMode } from './Staff';
 import Fretboard3D, { type LabelMode } from './Fretboard3D';
 import CircleOfFifths from './CircleOfFifths';
 import Explainer from './Explainer';
+import Chords from './Chords';
+import Licks from './Licks';
 import SpotlightCard from './reactbits/SpotlightCard';
 
 const FLAT_ROOTS = new Set(['F', 'B♭', 'E♭', 'A♭', 'D♭']);
@@ -206,6 +208,10 @@ export default function App() {
           <button className="pill accent block" onClick={playScale}>▶ Hear it and watch it travel</button>
         </SpotlightCard>
       </section>
+
+      <Chords root={root} type={type} />
+
+      <Licks root={root} type={type} />
 
       <Explainer root={root} type={type} />
     </div>

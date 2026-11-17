@@ -18,7 +18,7 @@ export default function Explainer({ root, type }: { root: Pitch; type: ScaleType
 
   return (
     <SpotlightCard className="card explainer" spotlight="rgba(242,184,75,0.08)">
-      <p className="eyebrow">6 · Understanding the circle</p>
+      <p className="eyebrow">8 · Understanding the circle</p>
       <h2>How the circle of fifths works</h2>
 
       <div className="ex-live">

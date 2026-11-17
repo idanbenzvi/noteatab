@@ -279,3 +279,52 @@ footer { text-align: center; color: var(--muted); font-size: 13px; padding: 20px
 .tx-letters i { font-style: normal; display: inline-block; min-width: 22px; text-align: center; margin: 0 2px; padding: 0 6px; border-radius: 999px; background: var(--surface-2); color: var(--text); font-weight: 600; }
 .tx-letters i.a { background: var(--coral); color: #1a0a05; } .tx-letters i.b { background: var(--teal); color: #04201d; }
 .tx-result { color: var(--teal); font-size: 16px; }
+
+/* ---------- Chords ---------- */
+.chord-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px; margin-top: 14px; }
+.chord-cell { display: grid; justify-items: center; gap: 4px; padding: 8px 6px 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 14px; }
+.chord-cell.small { padding: 6px 4px 8px; }
+.chord-title { display: flex; flex-direction: column; align-items: center; line-height: 1.15; }
+.chord-title b { font: 600 17px var(--serif); color: var(--text); }
+.chord-title span { font: 500 12px var(--sans); color: var(--amber); }
+.chord-notes { font-size: 11px; color: var(--muted); }
+.chord-cycle { background: none; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 11px; padding: 1px 8px; }
+.chord-cycle:hover { color: var(--text); border-color: var(--muted); }
+.chord-box { background: none; border: 0; padding: 0; width: 100%; max-width: 104px; cursor: pointer; transition: transform .15s; }
+.chord-box:hover:not(:disabled) { transform: translateY(-2px); }
+.chord-box svg { width: 100%; height: auto; display: block; }
+.cb-line { stroke: #55607a; stroke-width: 1; }
+.cb-nut { stroke: var(--text); stroke-width: 3; }
+.cb-fr { fill: var(--muted); font: 600 9px var(--sans); }
+.cb-mute { fill: var(--muted); font: 600 12px var(--sans); }
+.cb-open { fill: none; stroke: var(--text); stroke-width: 1.4; }
+.cb-barre { fill: rgba(242,184,75,.35); }
+.cb-dot { fill: var(--surface-2); stroke: var(--amber); stroke-width: 1.3; }
+.cb-dot.root { fill: var(--coral); stroke: var(--coral); }
+.cb-note { fill: var(--text); font: 700 7px var(--sans); pointer-events: none; }
+.cb-dot.root + .cb-note { fill: #1a0a05; }
+.cb-key { display: inline-flex; align-items: center; gap: 5px; margin-left: 8px; }
+.cb-key .cb-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.prog-list { display: grid; gap: 14px; margin-top: 10px; }
+.prog { padding: 12px 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 14px; }
+.prog-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.prog-head > b { font: 600 16px var(--sans); }
+.prog-romans { color: var(--amber); font: 600 14px var(--serif); flex: 1; }
+.prog-chords { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 4px; }
+.prog-chords .chord-cell { width: 118px; background: var(--surface); }
+
+/* ---------- Licks ---------- */
+.lick-list { display: grid; gap: 16px; margin-top: 14px; }
+.lick { padding: 12px 14px 8px; background: var(--bg); border: 1px solid var(--line); border-radius: 14px; }
+.lick.mine { border-color: rgba(79,209,197,.5); }
+.lick-blurb { flex: 1; min-width: 220px; line-height: 1.4; }
+.lick-sheet { width: 100%; height: auto; display: block; margin-top: 8px; user-select: none; }
+.lick-chord { fill: var(--text); font: 600 15px var(--serif); }
+.lick-roman { fill: var(--amber); font: 500 11px var(--sans); }
+.lick-time { fill: var(--text); font: 700 20px var(--serif); text-anchor: middle; }
+.lick-beam { stroke: currentColor; stroke-width: 3.2; }
+.note.selected .lick-beam { stroke: var(--coral); }
+.lick-fret-bg { fill: var(--bg); }
+.lick-fret { fill: var(--text); font: 700 12px var(--sans); }
+.lick-tech { fill: var(--amber); font: 700 11px var(--sans); }
+.licks .start-row { margin: 6px 0 0; }
