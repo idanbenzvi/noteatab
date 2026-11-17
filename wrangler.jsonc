@@ -1,0 +1,6 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "noteatab",
+  "compatibility_date": "2026-11-17",
+  "assets": { "directory": "./dist" }
+}

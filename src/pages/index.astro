@@ -1,0 +1,29 @@
+---
+import '@fontsource-variable/inter';
+import '@fontsource-variable/fraunces';
+import '@fontsource/noto-music';
+import '../styles/global.css';
+import Root from '../components/Root';
+import Aurora from '../components/reactbits/Aurora';
+import GradientText from '../components/reactbits/GradientText';
+import ShinyText from '../components/reactbits/ShinyText';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fretmap · From staff to fretboard</title>
+    <meta name="description" content="Learn where every note on the treble clef lives on the guitar neck, and explore scales on the circle of fifths." />
+  </head>
+  <body>
+    <Aurora />
+    <header class="hero">
+      <p class="kicker"><ShinyText text="A visual guide for beginning guitarists" /></p>
+      <h1>From <GradientText>staff</GradientText> to <GradientText>fretboard</GradientText></h1>
+      <p class="lede">Every note you read on the treble clef has several homes on the guitar neck. Choose a note, see all of them, then explore the scales that connect them.</p>
+    </header>
+    <main><Root client:load /></main>
+    <footer>Built with Astro · React · three.js · React Bits-style components. Standard tuning E A D G B E, 19 frets.</footer>
+  </body>
+</html>
