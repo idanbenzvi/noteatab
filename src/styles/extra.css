@@ -221,3 +221,15 @@ input[type=range] { accent-color: var(--amber); }
 .seg.wrap { flex-wrap: wrap; border-radius: 16px; }
 .viz-bpm { display: inline-flex; align-items: center; gap: 10px; }
 .viz-play { min-width: 150px; }
+.viz-canvas.edit { cursor: crosshair; touch-action: none; }
+.viz-chip { cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.viz-chip i { font-style: normal; font-size: 11px; opacity: .6; }
+.viz-chip.sel { color: var(--text); border-color: var(--teal, #4fd1c5); }
+.viz-chip.add { border-style: dashed; }
+.viz-chip:disabled, .viz-row .chip:disabled { opacity: .4; cursor: not-allowed; }
+.viz-count { align-self: center; font-size: 12px; color: var(--muted); margin-left: 6px; }
+.viz-gen { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,0.02); }
+.viz-gen .lab { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.viz-gen .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.viz-gen .chip { background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 5px 13px; font-size: 13px; color: var(--muted); }
+.viz-gen .chip.on { color: var(--text); border-color: var(--amber); }
