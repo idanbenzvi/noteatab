@@ -1,6 +1,6 @@
 let ctx: AudioContext | null = null;
 
-function ac(): AudioContext {
+export function ac(): AudioContext {
   if (!ctx) ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
   if (ctx.state === 'suspended') void ctx.resume();
   return ctx;
@@ -77,4 +77,121 @@ export function piano(midi: number, delay = 0, dur = 2.4) {
   ns.connect(bp).connect(ng).connect(out);
   ns.start(t);
   lp.connect(out).connect(c.destination);
+}
+
+/* ------------------------------ clocks & clicks ------------------------------ */
+
+/** Audio-clock time in seconds (use this, not Date.now(), for anything that must line up with sound). */
+export const audioNow = () => ac().currentTime;
+export const hzOf = (midi: number) => 440 * Math.pow(2, (midi - 69) / 12);
+
+/** A short percussive tick for the metronome. `at` is an absolute audio-clock time. */
+export function click(at: number, level: 'accent' | 'beat' | 'sub' = 'beat', volume = 0.6) {
+  const c = ac();
+  const o = c.createOscillator();
+  const g = c.createGain();
+  o.type = 'square';
+  o.frequency.value = level === 'accent' ? 1500 : level === 'beat' ? 1000 : 700;
+  const peak = volume * (level === 'accent' ? 0.5 : level === 'beat' ? 0.38 : 0.22);
+  g.gain.setValueAtTime(0.0001, at);
+  g.gain.exponentialRampToValueAtTime(peak, at + 0.002);
+  g.gain.exponentialRampToValueAtTime(0.0001, at + 0.045);
+  o.connect(g).connect(c.destination);
+  o.start(at);
+  o.stop(at + 0.06);
+}
+
+/** Play a voiced note at an absolute audio-clock time. */
+export function playAt(voice: 'guitar' | 'piano', soundingMidi: number, at: number, dur = 1.2) {
+  const delay = Math.max(0, at - ac().currentTime);
+  if (voice === 'piano') piano(soundingMidi, delay, dur + 0.8);
+  else pluck(soundingMidi, delay, dur + 0.4);
+}
+
+/** Play a chord (block or strummed) on the chosen voice. */
+export function playChord(voice: 'guitar' | 'piano', midis: number[], opts: { delay?: number; spread?: number; dur?: number } = {}) {
+  const { delay = 0, spread = voice === 'guitar' ? 0.05 : 0.012, dur = 2.2 } = opts;
+  midis.forEach((m, i) => (voice === 'piano' ? piano(m, delay + i * spread, dur) : pluck(m, delay + i * spread, dur)));
+}
+
+/** Play a sequence of {midi, at (s from now), dur} on one voice, for melodic examples. */
+export function playLine(voice: 'guitar' | 'piano', notes: { midi: number; at: number; dur?: number }[]) {
+  notes.forEach((n) => (voice === 'piano' ? piano(n.midi, n.at, (n.dur ?? 0.8) + 0.9) : pluck(n.midi, n.at, (n.dur ?? 0.8) + 0.5)));
+}
+
+/* ------------------------------ guitar techniques ------------------------------ */
+
+export type Technique = 'pick' | 'hammer' | 'pull' | 'slide' | 'bend' | 'release' | 'vibrato' | 'mute' | 'harmonic' | 'tap';
+
+/**
+ * One guitar note with a playing technique. Frequencies are real (sounding) pitch.
+ * `from`/`to` = sounding midi; the note starts at `from` and moves to `to` where the technique says so.
+ */
+export function techNote(tech: Technique, midi: number, opts: { delay?: number; dur?: number; to?: number } = {}) {
+  const c = ac();
+  const t = c.currentTime + (opts.delay ?? 0);
+  const dur = opts.dur ?? 1.2;
+  const f0 = hzOf(midi);
+  const to = opts.to ?? midi;
+  const o = c.createOscillator();
+  const o2 = c.createOscillator();
+  const g = c.createGain();
+  const lp = c.createBiquadFilter();
+  lp.type = 'lowpass';
+  const bright = tech === 'mute' ? 600 : tech === 'harmonic' ? 6000 : Math.min(f0 * 8, 8000);
+  lp.frequency.setValueAtTime(bright, t);
+  lp.frequency.exponentialRampToValueAtTime(Math.max(f0 * 1.4, 300), t + dur);
+  const soft = tech === 'hammer' || tech === 'pull' || tech === 'tap';
+  const peak = soft ? 0.22 : 0.34;
+  const len = tech === 'mute' ? 0.22 : tech === 'harmonic' ? dur * 1.6 : dur;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(peak, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+  o.type = tech === 'harmonic' ? 'sine' : 'triangle';
+  o2.type = tech === 'harmonic' ? 'sine' : 'sawtooth';
+  const g2 = c.createGain();
+  g2.gain.value = tech === 'harmonic' ? 0.2 : 0.22;
+  const setF = (osc: OscillatorNode) => {
+    osc.frequency.setValueAtTime(f0, t);
+    if (tech === 'slide') { osc.frequency.setValueAtTime(f0, t + 0.12); osc.frequency.exponentialRampToValueAtTime(hzOf(to), t + 0.5); }
+    if (tech === 'bend') { osc.frequency.setValueAtTime(f0, t + 0.2); osc.frequency.exponentialRampToValueAtTime(hzOf(to), t + 0.65); }
+    if (tech === 'release') { osc.frequency.setValueAtTime(hzOf(to), t); osc.frequency.setValueAtTime(hzOf(to), t + 0.2); osc.frequency.exponentialRampToValueAtTime(f0, t + 0.65); }
+  };
+  setF(o); setF(o2);
+  if (tech === 'vibrato') {
+    const lfo = c.createOscillator();
+    const lg = c.createGain();
+    lfo.frequency.value = 5.5;
+    lg.gain.setValueAtTime(0, t);
+    lg.gain.linearRampToValueAtTime(28, t + 0.5);       // cents
+    lfo.connect(lg); lg.connect(o.detune); lg.connect(o2.detune);
+    lfo.start(t); lfo.stop(t + len + 0.1);
+  }
+  o.connect(lp); o2.connect(g2).connect(lp);
+  lp.connect(g).connect(c.destination);
+  o.start(t); o2.start(t);
+  o.stop(t + len + 0.1); o2.stop(t + len + 0.1);
+}
+
+/* ------------------------------ tuner reference ------------------------------ */
+
+/** A sustained reference tone for tuning by ear. Returns a stop function. */
+export function holdTone(midi: number): () => void {
+  const c = ac();
+  const o = c.createOscillator();
+  const g = c.createGain();
+  o.type = 'triangle';
+  o.frequency.value = hzOf(midi);
+  const t = c.currentTime;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.25, t + 0.05);
+  o.connect(g).connect(c.destination);
+  o.start(t);
+  return () => {
+    const n = c.currentTime;
+    g.gain.cancelScheduledValues(n);
+    g.gain.setValueAtTime(g.gain.value, n);
+    g.gain.exponentialRampToValueAtTime(0.0001, n + 0.12);
+    o.stop(n + 0.15);
+  };
 }

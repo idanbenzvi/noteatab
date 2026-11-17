@@ -4,6 +4,7 @@ import {
   scaleNotes, spellMidi, stepOf, type Note, type Pitch,
 } from '../lib/music';
 import SpotlightCard from './reactbits/SpotlightCard';
+import Narrate from './Narrate';
 
 /* How far ABOVE the sounding note each part is written. */
 const PARTS = [
@@ -93,8 +94,10 @@ export default function Transpose({ midi, flat, keyIdx }: { midi: number; flat: 
 
   return (
     <SpotlightCard className="card" spotlight="rgba(255,122,89,0.08)">
-      <p className="eyebrow">4 · How to transpose</p>
-      <h2>From concert score to a player’s part</h2>
+      <header className="card-head">
+        <div><p className="eyebrow">4 · How to transpose</p><h2>From concert score to a player’s part</h2></div>
+        <Narrate id="inst-transpose" />
+      </header>
 
       {/* ---------- A ---------- */}
       <div className="tx-head">

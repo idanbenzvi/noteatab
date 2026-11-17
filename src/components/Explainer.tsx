@@ -1,5 +1,6 @@
 import { SCALES, parentMajor, pitchName, scaleNotes, signatureCount, signatureLabel, type Pitch, type ScaleType } from '../lib/music';
 import SpotlightCard from './reactbits/SpotlightCard';
+import Narrate from './Narrate';
 
 const SHARPS = ['F', 'C', 'G', 'D', 'A', 'E', 'B'];
 const FLATS = ['B', 'E', 'A', 'D', 'G', 'C', 'F'];
@@ -18,8 +19,10 @@ export default function Explainer({ root, type }: { root: Pitch; type: ScaleType
 
   return (
     <SpotlightCard className="card explainer" spotlight="rgba(242,184,75,0.08)">
-      <p className="eyebrow">8 · Understanding the circle</p>
-      <h2>How the circle of fifths works</h2>
+      <header className="card-head">
+        <div><p className="eyebrow">8 · Understanding the circle</p><h2>How the circle of fifths works</h2></div>
+        <Narrate id="learn-circle" />
+      </header>
 
       <div className="ex-live">
         <p className="ex-live-title">Right now: <b>{pitchName(root)} {SCALES[type].label.toLowerCase()}</b></p>

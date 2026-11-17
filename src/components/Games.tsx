@@ -2,6 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { DEFAULT_SETTINGS, allPositions, isValidFret, makeQuestion, sameSounding, type Mode, type Question, type Settings } from '../lib/game';
 import { LETTERS, STRINGS, WRITTEN_OFFSET, noteName, type FretPos, type Note } from '../lib/music';
 import { pluck, piano } from '../lib/audio';
+import { record } from '../lib/progress';
+import { EXTRA_BY_ID, EXTRA_GAMES } from './games/registry';
+import ProgressCard from './games/ProgressCard';
 import GameStaff from './GameStaff';
 import { FretPicker, TabQuestion } from './TabViews';
 import SpotlightCard from './reactbits/SpotlightCard';
@@ -13,6 +16,14 @@ const MODES: { id: Mode; title: string; sub: string; icon: string }[] = [
   { id: 'ear', title: 'Ear → Staff', sub: 'Listen to a note, then write it on the staff. No tab to lean on.', icon: '♪' },
 ];
 
+/** Everything on the menu: the three original modes plus the extra games, grouped into sections. */
+const SECTIONS = ['Staff & tab', 'Reading theory', 'Ear training', 'Rhythm'] as const;
+const OLD_SECTION: Record<Mode, (typeof SECTIONS)[number]> = { tab2staff: 'Staff & tab', staff2tab: 'Staff & tab', ear: 'Ear training' };
+const CATALOGUE = [
+  ...MODES.map((m) => ({ id: m.id as string, title: m.title, sub: m.sub, icon: m.icon, section: OLD_SECTION[m.id] as string })),
+  ...EXTRA_GAMES.map((g) => ({ id: g.id, title: g.title, sub: g.sub, icon: g.icon, section: g.section })),
+];
+
 interface Result { correct: boolean; hinted: boolean; guessNote?: Note; guessPos?: FretPos }
 
 const load = (k: string) => { try { return Number(localStorage.getItem(k)) || 0; } catch { return 0; } };
@@ -20,6 +31,8 @@ const save = (k: string, v: number) => { try { localStorage.setItem(k, String(v)
 
 export default function Games() {
   const [mode, setMode] = useState<Mode>('tab2staff');
+  const [extra, setExtra] = useState<string | null>(null);              // id of a game from games/registry, or null for the original three
+  const [levels, setLevels] = useState<Record<string, string>>({});
   const [cfg, setCfg] = useState<Settings>(DEFAULT_SETTINGS);
   const [phase, setPhase] = useState<'menu' | 'play' | 'over'>('menu');
   const [q, setQ] = useState<Question | null>(null);
@@ -87,6 +100,7 @@ export default function Games() {
   const settle = (r: Result) => {
     if (!q || res) return;
     setRes(r);
+    record('fret', `${q.pos.s}:${q.pos.f}`, r.correct);
     setAsked((n) => n + 1);
     if (r.correct) {
       const ns = r.hinted ? 0 : streak + 1;
@@ -128,6 +142,14 @@ export default function Games() {
   const answerNote: Note | null = q && res ? (res.guessNote && res.correct ? res.guessNote : q.note) : null;
   const accuracy = asked ? Math.round((right / asked) * 100) : 0;
   const m = MODES.find((x) => x.id === mode)!;
+  const eg = extra ? EXTRA_BY_ID[extra] : null;
+  const egLevel = eg ? (levels[eg.id] ?? eg.levels[0].id) : '';
+  const selId = extra ?? mode;
+
+  /* ------------------------------ extra games ------------------------------ */
+  if (phase === 'play' && eg) {
+    return <div className="app">{eg.render({ level: egLevel, voice: cfg.instrument, sprint: cfg.sprint, onExit: () => setPhase('menu') })}</div>;
+  }
 
   /* ------------------------------ menu ------------------------------ */
   if (phase === 'menu' || phase === 'over') {
@@ -147,18 +169,50 @@ export default function Games() {
         )}
         <SpotlightCard className="card">
           <p className="eyebrow">Practice</p>
-          <h2>Train your eyes and your ears</h2>
-          <p className="hint">Reading the staff and reading tab are two halves of the same skill. Pick a game, set your range, and build the reflex.</p>
-          <div className="mode-grid" role="radiogroup" aria-label="Game mode">
-            {MODES.map((x) => (
-              <button key={x.id} role="radio" aria-checked={mode === x.id} className={`mode ${mode === x.id ? 'on' : ''}`} onClick={() => setMode(x.id)}>
-                <span className="mode-icon">{x.icon}</span>
-                <b>{x.title}</b>
-                <small>{x.sub}</small>
-              </button>
-            ))}
-          </div>
+          <h2>Train your eyes, your ears and your hands</h2>
+          <p className="hint">Reading the staff and reading tab are two halves of the same skill. Pick a game, set the difficulty, and build the reflex. Your results are saved on this device so the games can help with your weak spots.</p>
+          {SECTIONS.map((sec) => (
+            <div key={sec} className="mode-section">
+              <h3 className="mode-sec-title">{sec}</h3>
+              <div className="mode-grid" role="radiogroup" aria-label={sec}>
+                {CATALOGUE.filter((x) => x.section === sec).map((x) => (
+                  <button key={x.id} role="radio" aria-checked={selId === x.id} className={`mode ${selId === x.id ? 'on' : ''}`}
+                    onClick={() => { if (EXTRA_BY_ID[x.id]) setExtra(x.id); else { setExtra(null); setMode(x.id as Mode); } }}>
+                    <span className="mode-icon">{x.icon}</span>
+                    <b>{x.title}</b>
+                    <small>{x.sub}</small>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
 
+          {eg ? (
+            <div className="settings">
+              <div className="setting">
+                <span className="setting-label">Level</span>
+                <div className="seg wrap">
+                  {eg.levels.map((l) => <button key={l.id} className={egLevel === l.id ? 'on' : ''} onClick={() => setLevels({ ...levels, [eg.id]: l.id })}>{l.label}</button>)}
+                </div>
+              </div>
+              {eg.ear && (
+                <div className="setting">
+                  <span className="setting-label">Sound</span>
+                  <div className="seg">
+                    <button className={cfg.instrument === 'guitar' ? 'on' : ''} onClick={() => setCfg({ ...cfg, instrument: 'guitar' })}>🎸 Guitar</button>
+                    <button className={cfg.instrument === 'piano' ? 'on' : ''} onClick={() => setCfg({ ...cfg, instrument: 'piano' })}>🎹 Piano</button>
+                  </div>
+                </div>
+              )}
+              <div className="setting">
+                <span className="setting-label">Round</span>
+                <div className="seg">
+                  <button className={!cfg.sprint ? 'on' : ''} onClick={() => setCfg({ ...cfg, sprint: false })}>Endless</button>
+                  <button className={cfg.sprint ? 'on' : ''} onClick={() => setCfg({ ...cfg, sprint: true })}>{SPRINT_SECONDS}s sprint</button>
+                </div>
+              </div>
+            </div>
+          ) : (
           <div className="settings">
             <div className="setting">
               <span className="setting-label">Frets</span>
@@ -197,13 +251,22 @@ export default function Games() {
                 <button className={cfg.sprint ? 'on' : ''} onClick={() => setCfg({ ...cfg, sprint: true })}>{SPRINT_SECONDS}s sprint</button>
               </div>
             </div>
+            <div className="setting">
+              <span className="setting-label">Focus</span>
+              <div className="seg">
+                <button className={!cfg.focusWeak ? 'on' : ''} onClick={() => setCfg({ ...cfg, focusWeak: false })}>Random</button>
+                <button className={cfg.focusWeak ? 'on' : ''} onClick={() => setCfg({ ...cfg, focusWeak: true })} title="Ask the positions you get wrong most often more often">Weak spots first</button>
+              </div>
+            </div>
           </div>
+          )}
 
           <div className="start-row">
-            <button className="pill accent big" onClick={start}>▶ Start {m.title}</button>
-            <span className="muted">Best here: <b>{best}</b></span>
+            <button className="pill accent big" onClick={() => (eg ? setPhase('play') : start())}>▶ Start {eg ? eg.title : m.title}</button>
+            {!eg && <span className="muted">Best here: <b>{best}</b></span>}
           </div>
         </SpotlightCard>
+        <ProgressCard />
       </div>
     );
   }

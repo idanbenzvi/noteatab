@@ -6,6 +6,7 @@ import {
 import { piano, pluck } from '../lib/audio';
 import SpotlightCard from './reactbits/SpotlightCard';
 import Transpose from './Transpose';
+import Narrate from './Narrate';
 
 /**
  * How instruments are written relative to how they sound.
@@ -121,6 +122,7 @@ export default function Instruments() {
               <p className="eyebrow">1 · One sound, five pages</p>
               <h2>Same pitch, different notation</h2>
             </div>
+            <Narrate id="inst-overview" />
             <div className="seg" role="radiogroup" aria-label="Spell black keys with">
               <button className={!flat ? 'on' : ''} onClick={() => setFlat(false)} title="Spell black keys as sharps">♯</button>
               <button className={flat ? 'on' : ''} onClick={() => setFlat(true)} title="Spell black keys as flats">♭</button>

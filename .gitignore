@@ -5,3 +5,5 @@ dist
 graphify-out
 .DS_Store
 .env*
+scripts/.narration-voice.json
+scripts/.narration-preview.mp3
